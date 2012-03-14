@@ -16,7 +16,9 @@ var server = http.createServer(function(req, res){
 		res.end();
 	});
 });
-server.listen(15672);
+
+var port = process.evn['app_port'] || 8080;
+server.listen(port);
 
 var io = require('socket.io').listen(server),
 	nicknames = [], text = undefined;
