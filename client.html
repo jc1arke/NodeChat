@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<script type="text/javascript" src="http://code.jquery.com/jquery.min.js"></script>
+		<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+		<title>Realtime Chat Test</title>
+		<link rel='stylesheet' href='http://twitter.github.com/bootstrap/assets/css/bootstrap.css' />
+	</head>
+	<body>
+		<div id="container">
+			<div id='feedback'></div>
+			<ul id="msgs" class='nav nav-pills nav-stacked'></ul>
+			<div id="form" class='form-horizontal'>
+				<fieldset>
+					<legend>Message Control</legend>
+					<div class='control-group'>
+						<form id="nicknameForm">
+							<label class='control-label' for='nickname'>Nickname:</label>
+							<div class='controls'>
+								<input type="text" class='input-xlarge' name="nickname" id='nickname' />
+								<p class='help-block'>The nickname you want to chat under</p>
+								<button class='btn' id='setNickname'>Set nickname</button>
+							</div>
+						</form>
+						<form id="chat">
+							<label class='control-label' for='msg'>Message:</label>
+							<div class='controls'>
+								<input type="text" class='input-xlarge' name="message" id='msg' />
+								<p class='help-block'>The chat message that you want to send</p>
+								<input class='btn-primary' type='submit' />
+							</div>
+						</form>
+					</div>
+				</fieldset>
+			</div>
+		</div>
+	</body>
+	<script type="text/javascript">
+	var socket = io.connect("www.john.dev:8080");
+
+	var numMsgs = 0;
+
+	var showAlert = function(msg, type) {
+		msg = msg || 'Some message';
+		type = type || 'sucess';
+
+		$('<div />', {html: msg}).addClass('alert alert-' + type).appendTo('#feedback');
+		$('.alert').delay(1500).slideUp('slow', function(){ $(this).remove(); });
+	}
+
+	$('.alert').on('show', function(){
+		$(this).delay(1500).slideUp('slow', function(){ $(this).remove(); });	
+	})
+	
+
+	$('#setNickname').on('click', function (event) {
+		event.preventDefault();
+		var nickname = $('#nickname').val();
+		$('#nickname').data('nickname', nickname);
+		socket.send(JSON.stringify({command: 'nickname', value: nickname}));
+		showAlert('You are now known as ' + nickname + ' in the room');
+	});
+
+	$('form#chat').on('submit', function(event){
+		event.preventDefault();
+		sendMsg();
+	});
+
+	socket.on('connect', function(){
+		
+		socket.addListener('message', function(msg) {
+			console.log('message', msg);
+			var ms = JSON.parse(msg);
+			console.log(ms);
+			$('<li />', {html: '<a href=\'#\'><span class="label label-info">' + new Date() + '</span>: ' + ms.nickname + ' said: ' + ms.data + '</a>'}).appendTo('#msgs');
+		});
+
+		socket.addListener('announcement', function(data){
+			$('<li />', {html: '<a href=\'#\'>' + data + '</a>'}).appendTo('#msgs');
+		});
+	});
+
+	function sendMsg() {
+		var values = {};
+		socket.send(JSON.stringify({data: document.getElementById("msg").value}));
+		$('<li />', {html: '<a href=\'#\'>' + new Date() + ': You said: ' + document.getElementById("msg").value + '</a>'}).addClass('active').appendTo('#msgs');
+		document.getElementById("msg").value = "";
+	}
+	</script>
+</html>
