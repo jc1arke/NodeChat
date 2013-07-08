@@ -1,0 +1,9 @@
+machine:
+  timezone:
+    Africa/Johannesburg
+
+deployment:
+  staging:
+    branch: master
+    heroku:
+      appname: jc-nodechat-123
