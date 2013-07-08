@@ -6,4 +6,4 @@ deployment:
   staging:
     branch: master
     heroku:
-      appname: jc-nodechat-123
+      appname: fathomless-castle-3733
