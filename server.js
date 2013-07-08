@@ -17,7 +17,7 @@ var server = http.createServer(function(req, res){
 	});
 });
 
-var port = process.env['app_port'] || 8080;
+var port = process.env['app_port'] || 8081;
 server.listen(port);
 
 var io = require('socket.io').listen(server),
