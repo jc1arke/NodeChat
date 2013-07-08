@@ -9,5 +9,5 @@ deployment:
       appname: fathomless-castle-3733
 
 test:
-	override:
-		- node server.js
+  override:
+    - node server.js
